@@ -4,6 +4,7 @@ import com.javarush.dao.*;
 import com.javarush.domain.*;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 
@@ -33,7 +34,7 @@ public class Main {
         Properties properties = new Properties();
         properties.put(Environment.DIALECT, "org.hibernate.dialect.MySQL5Dialect");
         properties.put(Environment.DRIVER, "com.p6spy.engine.spy.P6SpyDriver");
-        properties.put(Environment.URL, "jdbc:p6spy:mysql://localhost:3306/rpg");
+        properties.put(Environment.URL, "jdbc:p6spy:mysql://localhost:3306/movie");
         properties.put(Environment.USER, "root");
         properties.put(Environment.PASS, "mysql");
         properties.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
@@ -80,12 +81,33 @@ public class Main {
     }
 
     private Customer createNewCustomer() {
-        try (Session session = sessionFactory.getCurrentSession()) {
-            session.beginTransaction();
+        Session session = sessionFactory.getCurrentSession();
+        Transaction transaction = session.beginTransaction();
+        try (session) {
+            Store store = storeDAO.getItems(0, 1).getFirst();
+            City city = cityDAO.getByName("Kragujevac");
+            Address address = new Address();
+            address.setAddress("White str, 4");
+            address.setPhone("999-444-333");
+            address.setCity(city);
+            address.setDistrict("Wawa");
+            addressDAO.save(address);
             Customer customer = new Customer();
-            session.getTransaction().commit();
+            customer.setActive(true);
+            customer.setEmail("re@gmail.com");
+            customer.setAddress(address);
+            customer.setStore(store);
+            customer.setFirstName("Igor");
+            customer.setLastName("Rei");
+            customerDAO.save(customer);
+            try {
+                transaction.commit();
+            } catch (Exception e) {
+                transaction.rollback();
+                System.out.println(e.getMessage() + "rollback");
+            }
             return customer;
-        }
 
+        }
     }
 }

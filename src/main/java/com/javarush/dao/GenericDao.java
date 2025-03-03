@@ -47,7 +47,7 @@ public abstract class GenericDao<T> {
         sessionFactory.getCurrentSession().delete(getById(id));
     }
 
-//    protected Session getCurrentSession() {
-//        return sessionFactory.getCurrentSession();
-//    }
+    protected Session getCurrentSession() {
+        return sessionFactory.getCurrentSession();
+    }
 }
