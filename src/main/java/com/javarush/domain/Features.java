@@ -23,7 +23,8 @@ public enum Features {
         if (isNull(value) || value.isEmpty()){
             return null;
         }
-        for (Features feature : Features.values()) {
+        Features[] features = Features.values();
+        for (Features feature : features) {
             if (feature.getName().equals(value)) {
                 return feature;
             }

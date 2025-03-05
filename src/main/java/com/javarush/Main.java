@@ -8,6 +8,8 @@ import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Properties;
 
 public class Main {
@@ -78,6 +80,64 @@ public class Main {
     public static void main(String[] args) {
         Main main = new Main();
         Customer customer = main.createNewCustomer();
+        main.customerRentInventory(customer);
+
+        main.customerReturnInventoryToStore();
+    }
+
+    private void customerRentInventory(Customer customer) {
+        Session session = sessionFactory.getCurrentSession();
+        Transaction transaction = session.beginTransaction();
+        try (session) {
+            Film film = filmDAO.getFirstAvailableFilmForRent();
+            Store store = storeDAO.getItems(0, 1).getFirst();
+            Inventory inventory = new Inventory();
+            inventory.setFilm(film);
+            inventory.setStore(store);
+            inventoryDAO.save(inventory);
+
+            Staff staff = store.getStaff();
+
+            Rental rental = new Rental();
+            rental.setCustomer(customer);
+            rental.setRentalDate(LocalDateTime.now());
+            rental.setInventory(inventory);
+            rental.setStaff(staff);
+            rentalDAO.save(rental);
+
+            Payment payment = new Payment();
+            payment.setCustomer(customer);
+            payment.setRental(rental);
+            payment.setPaymentDate(LocalDateTime.now());
+            payment.setAmount(BigDecimal.valueOf(55.77));
+            payment.setStaff(staff);
+            paymentDAO.save(payment);
+
+            try {
+                transaction.commit();
+            } catch (Exception e) {
+                transaction.rollback();
+                System.out.println(e.getMessage() + "rollback");
+            }
+        }
+    }
+
+    private void customerReturnInventoryToStore() {
+        Session session = sessionFactory.getCurrentSession();
+        Transaction transaction = session.beginTransaction();
+        try (session) {
+
+            Rental rental = rentalDAO.getAnyUnreturnedRental();
+            rental.setReturnDate(LocalDateTime.now());
+            rentalDAO.save(rental);
+
+            try {
+                transaction.commit();
+            } catch (Exception e) {
+                transaction.rollback();
+                System.out.println(e.getMessage() + "rollback");
+            }
+        }
     }
 
     private Customer createNewCustomer() {
