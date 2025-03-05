@@ -1,6 +1,6 @@
 package com.javarush.dao;
 
-import com.javarush.domain.Actor;
+import com.javarush.entity.Actor;
 import org.hibernate.SessionFactory;
 
 public class ActorDAO extends GenericDao<Actor> {

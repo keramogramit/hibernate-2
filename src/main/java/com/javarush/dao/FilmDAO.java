@@ -1,6 +1,6 @@
 package com.javarush.dao;
 
-import com.javarush.domain.Film;
+import com.javarush.entity.Film;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 

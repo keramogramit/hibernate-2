@@ -1,6 +1,6 @@
 package com.javarush.dao;
 
-import com.javarush.domain.FilmText;
+import com.javarush.entity.FilmText;
 import org.hibernate.SessionFactory;
 
 public class FilmTextDAO extends GenericDao<FilmText> {

@@ -1,7 +1,7 @@
 package com.javarush;
 
 import com.javarush.dao.*;
-import com.javarush.domain.*;
+import com.javarush.entity.*;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -10,9 +10,13 @@ import org.hibernate.cfg.Environment;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.Year;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
-public class Main {
+public class AppMain {
     private final SessionFactory sessionFactory;
 
     private final ActorDAO actorDAO;
@@ -32,15 +36,8 @@ public class Main {
 
 
 
-    public Main() {
-        Properties properties = new Properties();
-        properties.put(Environment.DIALECT, "org.hibernate.dialect.MySQL5Dialect");
-        properties.put(Environment.DRIVER, "com.p6spy.engine.spy.P6SpyDriver");
-        properties.put(Environment.URL, "jdbc:p6spy:mysql://localhost:3306/movie");
-        properties.put(Environment.USER, "root");
-        properties.put(Environment.PASS, "mysql");
-        properties.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
-        properties.put(Environment.HBM2DDL_AUTO, "validate");
+    public AppMain() {
+        Properties properties = getProperties();
 
         sessionFactory = new Configuration()
                 .addAnnotatedClass(Actor.class)
@@ -77,12 +74,65 @@ public class Main {
 
     }
 
+    private Properties getProperties() {
+        Properties properties = new Properties();
+        properties.put(Environment.DIALECT, "org.hibernate.dialect.MySQL5Dialect");
+        properties.put(Environment.DRIVER, "com.p6spy.engine.spy.P6SpyDriver");
+        properties.put(Environment.URL, "jdbc:p6spy:mysql://localhost:3306/movie");
+        properties.put(Environment.USER, "root");
+        properties.put(Environment.PASS, "mysql");
+        properties.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
+        properties.put(Environment.HBM2DDL_AUTO, "validate");
+        return properties;
+    }
+
     public static void main(String[] args) {
-        Main main = new Main();
+        AppMain main = new AppMain();
         Customer customer = main.createNewCustomer();
         main.customerRentInventory(customer);
-
         main.customerReturnInventoryToStore();
+        main.newFilmWasMade();
+    }
+
+    private void newFilmWasMade() {
+        Session session = sessionFactory.getCurrentSession();
+        Transaction transaction = session.beginTransaction();
+        try (session) {
+            try {
+                Language language = languageDAO.getItems(0, 20).stream().unordered().findAny().orElse(null);
+                List<Category> categories = categoryDAO.getItems(0, 5);
+                List<Actor> actors = actorDAO.getItems(0,20);
+
+                Film film = new Film();
+                film.setLanguage(language);
+                film.setActors(new HashSet<>(actors));
+                film.setRating(Rating.NC17);
+                film.setSpecialFeatures(Set.of(Features.TRAILERS, Features.COMMENTARIES));
+                film.setLength((short) 5);
+                film.setReplacementCost(BigDecimal.ONE);
+                film.setRentalRate(BigDecimal.ZERO);
+                film.setDescription("new film");
+                film.setTitle("new film");
+                film.setRentalDuration((byte) 5);
+                film.setOriginalLanguage(language);
+                film.setCategories(new HashSet<>(categories));
+                film.setReleaseYear(Year.now());
+                filmDAO.save(film);
+
+                FilmText filmText = new FilmText();
+                filmText.setFilm(film);
+                filmText.setId(film.getId());
+                filmText.setDescription("new film");
+                filmText.setTitle("new film");
+                filmTextDAO.save(filmText);
+
+
+                transaction.commit();
+            } catch (Exception e) {
+                transaction.rollback();
+                System.out.println(e.getMessage() + " rollback");
+            }
+        }
     }
 
     private void customerRentInventory(Customer customer) {

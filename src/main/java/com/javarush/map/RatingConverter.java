@@ -1,5 +1,6 @@
-package com.javarush.domain;
+package com.javarush.map;
 
+import com.javarush.entity.Rating;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 

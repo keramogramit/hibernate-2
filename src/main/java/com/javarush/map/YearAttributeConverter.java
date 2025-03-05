@@ -1,4 +1,4 @@
-package com.javarush.domain;
+package com.javarush.map;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;

@@ -1,6 +1,6 @@
 package com.javarush.dao;
 
-import com.javarush.domain.Customer;
+import com.javarush.entity.Customer;
 import org.hibernate.SessionFactory;
 
 public class CustomerDAO extends GenericDao<Customer> {

@@ -1,4 +1,4 @@
-package com.javarush.domain;
+package com.javarush.entity;
 
 import static java.util.Objects.isNull;
 

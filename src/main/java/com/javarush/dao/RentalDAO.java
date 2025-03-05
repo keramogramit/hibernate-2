@@ -1,6 +1,6 @@
 package com.javarush.dao;
 
-import com.javarush.domain.Rental;
+import com.javarush.entity.Rental;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 

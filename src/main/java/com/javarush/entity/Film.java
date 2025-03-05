@@ -1,5 +1,7 @@
-package com.javarush.domain;
+package com.javarush.entity;
 
+import com.javarush.map.RatingConverter;
+import com.javarush.map.YearAttributeConverter;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
